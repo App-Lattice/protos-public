@@ -1,0 +1,187 @@
+/**
+ * A `ServiceGroup` is the same thing as an App Lattice "App"
+ */
+syntax = "proto3";
+
+package ServiceGroup;
+
+import "certmanager/dns/providers.proto";
+import "google/protobuf/timestamp.proto";
+
+service Api {
+  /*
+    create a ServiceGroup, the base element for an 
+    application created with App Lattice.
+  */
+  rpc create (CreateRequest) returns (CreateResponse) {}
+  rpc destroy (DestroyRequest) returns (DestroyResponse) {}
+  rpc update (UpdateRequest) returns (ShowResponse) {}
+  rpc show (ShowRequest) returns (ShowResponse) {}
+  rpc showStream(ShowRequest) returns (stream ShowResponse) {};
+  rpc where(WhereRequest) returns(WhereResponse) {};
+  rpc createOrUpdateSecrets(CreateOrUpdateSecretsRequest) returns(CreateOrUpdateSecretsResponse) {};
+  rpc secretList(SecretListRequest) returns (SecretListResponse) {};
+  rpc secretShow(SecretShowRequest) returns (SecretShowResponse) {};
+}
+
+message ShowRequest {
+  string id = 1;
+}
+
+message ShowResponse{
+  string id = 1;
+  int64 numberOfNodes = 2;
+  string nodeSize = 3;
+  int64 createdAt = 4;
+  int64 updatedAt = 5;
+  string name = 6;
+  StatusPretty status = 7;
+  string clusterId = 8; 
+  string userId = 9; 
+  string certbotAdminEmail = 10;
+  string domain = 11;
+  string subdomain = 12;
+}
+
+message CreateRequest {
+  string name = 1;
+  int64 numberOfNodes = 2;
+  string nodeSize = 3;
+  string userId = 4;
+  string certbotAdminEmail = 5;
+  string domain=6;
+  oneof dnsCredentials {
+    app_lattice.certmanager.dns.DigitalOcean digitalOceanDns=7;
+    app_lattice.certmanager.dns.CloudFlare cloudFlareDns=8;
+    app_lattice.certmanager.dns.Route53 route53Dns=9;
+  }
+  string subdomain=10;
+}
+
+message CreateResponse{
+  string id = 1;
+  int64 numberOfNodes = 2;
+  string nodeSize = 3;
+  int64 createdAt = 4;
+  string name = 5;
+  StatusPretty status = 6;
+}
+
+message UpdateRequest {
+  string id = 1;
+  int64 numberOfNodes = 2;
+  string nodeSize = 3;
+  int64 updatedAt = 4;
+  string secrets=7;
+}
+
+message UpdateResponse{
+  string id = 2;
+  int64 numberOfNodes = 3;
+  string nodeSize = 4;
+  int64 createdAt = 5;
+  int64 updatedAt = 6;
+}
+
+message DestroyRequest {
+  string id = 1;
+}
+
+message DestroyResponse{
+  string id = 1;
+  int64 numberOfNodes = 2;
+  string nodeSize = 3;
+  int64 createdAt = 4; int64 updatedAt = 5; }
+
+
+
+message WhereRequest {
+  string id=1;
+  string name=2;
+  string nodeSize=3;
+  int32 numberOfNodes=4;
+  string clusterName=5;
+  google.protobuf.Timestamp createdAt=6;
+  google.protobuf.Timestamp updatedAt=7;
+  google.protobuf.Timestamp destroyedAt=8;
+  StatusPretty status=9;
+  string clusterId=10;
+  string userId=11;
+
+  // these don't work right now but would "be a lot cooler if they did"
+  // optional WhereRequest AND=12;
+  // optional WhereRequest OR=12;
+  // optional WhereRequest NOT=12;
+}
+
+message WhereResponse {
+  repeated ShowResponse serviceGroups=1;
+}
+
+message ClusterPriceHourly {
+  int64 total=1;
+  int64 nodes=2;
+  int64 volumes=3;
+  int64 loadBalancer=4;
+}
+
+message Volume {
+  int64 size = 1;
+}
+
+enum StatusPretty {
+  STATUS_PRETTY_UNSPECIFIED=0;
+  STATUS_PRETTY_ACTIVE=1;
+  STATUS_PRETTY_INITIALIZING=2;
+  STATUS_PRETTY_DELETING=3;
+  STATUS_PRETTY_DELETED=4;
+  STATUS_PRETTY_ERROR=5;
+  STATUS_PRETTY_INSTALLING_VENDOR_SERVICES=6;
+  STATUS_PRETTY_DNS_SETUP=7;
+  STATUS_PRETTY_INSTALLING_PROPRIETARY_SERVICES=8;
+}
+
+message CreateSecretRequest {
+  string name=1;
+  string type=2;
+  map<string, string> values=3;
+  string namespace=4;
+}
+
+message CreateOrUpdateSecretsRequest{
+  string id=1;
+  repeated CreateSecretRequest secrets=2;
+} 
+
+message CreateOrUpdateSecretsResponse {};
+
+message SecretMetaData {
+  map<string, string> labels=1;
+}
+
+message ShowSecretResponse {
+  string name=1;
+  string type=2;
+  map<string, string> values=3;
+  string namespace=4;
+  SecretMetaData metadata=5;
+}
+
+message SecretListRequest {
+  string id=1;
+  repeated string labelSelectors=2;
+}
+
+message SecretListResponse {
+  repeated ShowSecretResponse secrets=1;
+};
+
+message SecretShowRequest {
+  string id=1;
+  string secretName=2;
+  string namespace=3;
+} 
+message SecretShowResponse {
+  string name=1;
+  map<string, string> data=2;
+};

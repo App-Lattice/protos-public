@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package AppLatticeCommon;
+
+import "google/protobuf/timestamp.proto";
+
+message Timestamps {
+  google.protobuf.Timestamp createdAt=6;
+  google.protobuf.Timestamp updatedAt=7;
+  google.protobuf.Timestamp destroyedAt=8;
+}
+
+enum ResponseFormat {
+  JSON = 0;
+  JSON_STRING=1;
+}

@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package app_lattice.certmanager.dns;
+
+message DigitalOcean {
+  string access_token=1;
+}
+
+message CloudFlare {
+  string api_token=1;
+}
+
+message Route53 {
+  string region=1;
+  string hosted_zone_id=2;
+  string role=3;
+}

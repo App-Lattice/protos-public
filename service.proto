@@ -1,0 +1,205 @@
+syntax = "proto3";
+
+package Service;
+
+import "appLatticeCommon.proto";
+
+service API {
+  rpc showStream (ShowRequest) returns (stream ShowResponse) {}
+  rpc create (CreateRequest) returns (CreateResponse) {}
+  rpc where (WhereRequest) returns (WhereResponse) {}
+  rpc destroy (DestroyRequest) returns (DestroyResponse) {}
+  rpc build(BuildRequest) returns (BuildRespones) {}
+  rpc update(UpdateRequest) returns (UpdateResponse) {}
+  rpc ciBuildInfo(CiBuildInfoRequest) returns (stream CiBuildInfoResponse) {}
+}
+
+message CreateRequest {
+  string name = 2;
+  string envVars = 3;
+  string serviceGroupId=4;
+  repeated CreatePortMappingRequest portMappings=5;
+  bool hasDatabase=6;
+  int32 replicas=7;
+  string templateRepo=9;
+  bool withHttpProxy=10;
+  bool grpc=11;
+  repeated CreateSecretRequest secrets=12;
+}
+
+message CreateCommandRequest {
+  string id=1;
+  CreateRequest createRequest=2;
+  bool existingGithubRepo=3;
+}
+
+message SecretForBuildArgs {
+  string secretName=1;
+  string secretKey=2;
+  string key=3;
+}
+
+message ShowRequest {
+  string id=1;
+}
+
+message ShowResponse{
+  string id =1;
+  string name = 2;
+  string envVars = 3;
+  Status status=5;
+  string serviceGroupId=7;
+  repeated PortMapping portMappings=8;
+  int32 replicas=9;
+  string templateRepo=13;
+  CiBuildInfo ciBuildInfo=14;
+  repeated Secret secrets=15;
+}
+
+message CreateResponse{}
+
+message CreateArgumentError {
+  repeated string name = 1;
+  repeated string envVars = 2;
+  repeated string serviceGroupName = 6;
+  repeated string portMappings = 7;
+}
+
+enum Status {
+  creating_github_repo = 0;
+  updating_k8s_config = 1;
+  creating_cicd_pipelines = 2;
+  initial_docker_build_and_deploy = 3;
+  destroying = 4;
+  updating = 5;
+  ready = 6;
+  failed = 7;
+  creating_database = 8;
+  deploying_to_k8s=9;
+  create_failed_initial_docker_build_and_deploy=10;
+  helmfile_sync=11;
+  create_failed_helmfile_sync=12;
+}
+
+message UpdateStatusResponse {
+  ShowResponse service=1;
+  Status previousStatus=2;
+}
+
+message Updated {
+  Status originalStatus = 1;
+  Status newStatus = 2;
+  string publicId = 3;
+}
+
+enum PortProtocol {
+  TCP=0;
+}
+
+message PortMapping {
+  string id=1;
+  int32 target=2;
+  int32 port=3;
+  PortProtocol protocol=4;
+  string name=5;
+}
+
+message CreatePortMappingRequest {
+  int32 target=1;
+  int32 port=2;
+  PortProtocol protocol=3;
+  string name=4;
+}
+message CreateSecretRequest {
+  string secretName=1;
+  string envName=2;
+  string propertyName=3;
+  bool env=4;
+  bool build=5;
+}
+
+message Secret {
+  string secretName=1;
+  string envName=2;
+  string propertyName=3;
+  bool env=4;
+  bool build=5;
+  string id=6;
+}
+
+
+enum CreateProcessState{
+  INIT=0;
+  CREATE_GITHUB_REPO=1;
+  CREATE_JENKINS_JOBS=2;
+  CREATE_DATABASE=3;
+  END=5;
+  TRIGGER_JENKINS_JOB_BUILD=6;
+  HELMFILE_SYNC=7;
+}
+
+message WhereInput {
+  string id=1;
+  string name = 2;
+  Status status=3;
+  string serviceGroupId=4;
+}
+message WhereRequest {
+  WhereInput whereInput=1;
+  AppLatticeCommon.ResponseFormat format=2;
+}
+
+message WhereResponse {
+  repeated ShowResponse services=1;
+  string servicesJson=2;
+  AppLatticeCommon.ResponseFormat format=3;
+}
+
+message DestroyRequest {
+  string id=1;
+}
+
+message DestroyResponse {
+  ShowResponse service=1;
+}
+
+enum CiBuildStatus {
+  CI_BUILD_STATUS_UNSPECIFIED=0;
+  CI_BUILD_STATUS_FAILED=1;
+  CI_BUILD_STATUS_SUCCESS=2;
+  CI_BUILD_STATUS_PENDING=3;
+}
+
+message CiBuildInfo {
+  CiBuildStatus status=1;
+  string logs=2;
+}
+
+message BuildRequest {
+  string id=1;
+}
+
+message BuildRespones {
+}
+
+message UpdateRequest {
+  string id=1;
+  string envVars = 2;
+  repeated CreatePortMappingRequest portMappings=3;
+  int32 replicas=4;
+  repeated SecretForBuildArgs secretsForBuildArgs=5;
+  bool withHttpProxy=6;
+  bool grpc=7;
+}
+
+message UpdateResponse {
+}
+
+message CiBuildInfoRequest{
+  string id=1;
+} 
+
+message CiBuildInfoResponse {
+  CiBuildStatus status=1;
+  string logs=2;
+}
