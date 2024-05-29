@@ -151,8 +151,7 @@ message WhereRequest {
 
 message WhereResponse {
   repeated ShowResponse services=1;
-  string servicesJson=2;
-  AppLatticeCommon.ResponseFormat format=3;
+  optional string servicesJson=2;
 }
 
 message DestroyRequest {
