@@ -146,7 +146,7 @@ message WhereInput {
 }
 message WhereRequest {
   WhereInput whereInput=1;
-  AppLatticeCommon.ResponseFormat format=2;
+  optional AppLatticeCommon.ResponseFormat format=2;
 }
 
 message WhereResponse {
