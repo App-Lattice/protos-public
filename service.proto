@@ -139,10 +139,10 @@ enum CreateProcessState{
 }
 
 message WhereInput {
-  string id=1;
-  string name = 2;
-  Status status=3;
-  string serviceGroupId=4;
+  optional string id=1;
+  optional string name = 2;
+  optional Status status=3;
+  optional string serviceGroupId=4;
 }
 message WhereRequest {
   WhereInput whereInput=1;
