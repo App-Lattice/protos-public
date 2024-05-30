@@ -66,6 +66,8 @@ message CreateArgumentError {
 }
 
 enum Status {
+  // 0 should be unspecified. Right now status has to be undefined to 
+  // otherwise it defaults to creating_github_repo in where requests
   creating_github_repo = 0;
   updating_k8s_config = 1;
   creating_cicd_pipelines = 2;
@@ -79,6 +81,7 @@ enum Status {
   create_failed_initial_docker_build_and_deploy=10;
   helmfile_sync=11;
   create_failed_helmfile_sync=12;
+  creating=13;
 }
 
 message UpdateStatusResponse {
